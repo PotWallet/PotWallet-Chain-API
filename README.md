@@ -1,24 +1,24 @@
-# *Reddsight API*
+# *PotChain API*
 
-*Reddsight API* is an open-source Reddcoin blockchain REST
-and websocket API. Reddsight API runs in NodeJS and uses LevelDB for storage. 
+*PotChain API* is an open-source Potcoin blockchain REST
+and websocket API. PotChain API runs in NodeJS and uses LevelDB for storage. 
 
 This is a backend-only service. If you're looking for a web frontend application,
-take a look at our official blockchain explorer [Reddsight](https://github.com/reddcoin-project/reddsight).
+take a look at our official blockchain explorer [PotChain](https://github.com/PotWallet/PotWallet-Chain).
 
-*Reddsight API* allows everyone to develop Reddcoin-related applications (such as wallets) that 
-require certain information from the blockchain that reddcoind does not provide.
+*PotChain API* allows everyone to develop Potcoin-related applications (such as wallets) that 
+require certain information from the blockchain that potcoind does not provide.
 
 
 ## Prerequisites
 
-* **reddcoind** - Download and install [Reddcoin](https://github.com/reddcoin-project/reddcoin).
+* **potcoind** - Download and install [Potcoin](https://github.com/potcoin/Potcoin).
 
-*Reddsight API* needs a *trusted* reddcoind node to run. *Reddsight API* will connect to the node
-through the RPC API, Reddcoin peer-to-peer protocol, and will even read its raw block .dat files for syncing.
+*PotChain API* needs a *trusted* potcoind node to run. *PotChain API* will connect to the node
+through the RPC API, Potcoin peer-to-peer protocol, and will even read its raw block .dat files for syncing.
 
-Configure reddcoind to listen to RPC calls and set `txindex` to true. reddcoind must be running and must have
-finished downloading the blockchain **before** running *Reddsight API*.
+Configure potcoind to listen to RPC calls and set `txindex` to true. potcoind must be running and must have
+finished downloading the blockchain **before** running *PotChain API*.
 
 * **Node.js v0.10.x** - Download and Install [Node.js](http://www.nodejs.org/download/).
 
@@ -28,9 +28,9 @@ finished downloading the blockchain **before** running *Reddsight API*.
 ## Quick Install
   Check the Prerequisites section above before installing.
 
-  To install *Reddsight API*, clone the main repository:
+  To install *PotChain API*, clone the main repository:
 
-    $ git clone https://github.com/reddcoin-project/reddsight-api.git && cd reddsight-api
+    $ git clone https://github.com/PotWallet/PotWallet-Chain-API.git && cd PotWallet-Chain-API
 
   Install dependencies:
 
@@ -56,16 +56,16 @@ There you can specify your application name and database name. Certain configura
 variables if they are defined:
 
 ```
-BITCOIND_HOST         # RPC reddcoind host
-BITCOIND_PORT         # RPC reddcoind Port
-BITCOIND_P2P_HOST     # P2P reddcoind Host (will default to BITCOIND_HOST, if specified)
-BITCOIND_P2P_PORT     # P2P reddcoind Port
+BITCOIND_HOST         # RPC potcoind host
+BITCOIND_PORT         # RPC potcoind Port
+BITCOIND_P2P_HOST     # P2P potcoind Host (will default to BITCOIND_HOST, if specified)
+BITCOIND_P2P_PORT     # P2P potcoind Port
 BITCOIND_USER         # RPC username
 BITCOIND_PASS         # RPC password
-BITCOIND_DATADIR      # reddcoind datadir. 'testnet' will be appended automatically if testnet is used. NEED to finish with '/'. e.g: `/vol/data/`
+BITCOIND_DATADIR      # potcoind datadir. 'testnet' will be appended automatically if testnet is used. NEED to finish with '/'. e.g: `/vol/data/`
 INSIGHT_NETWORK [= 'livenet' | 'testnet']
 INSIGHT_PORT          # insight api port
-INSIGHT_DB            # Path where to store the internal DB. (defaults to $HOME/.reddsight)
+INSIGHT_DB            # Path where to store the internal DB. (defaults to $HOME/.potchain)
 INSIGHT_SAFE_CONFIRMATIONS=6  # Nr. of confirmation needed to start caching transaction information   
 INSIGHT_IGNORE_CACHE  # True to ignore cache of spents in transaction, with more than INSIGHT_SAFE_CONFIRMATIONS confirmations. This is useful for tracking double spents for old transactions.
 ENABLE_MAILBOX # if "true" will enable mailbox plugin
@@ -78,36 +78,36 @@ ENABLE_HTTPS # if "true" it will server using SSL/HTTPS
 
 ```
 
-Make sure that reddcoind is configured to [accept incoming connections using 'rpcallowip'](https://en.bitcoin.it/wiki/Running_Bitcoin).
+Make sure that potcoind is configured to [accept incoming connections using 'rpcallowip'](https://en.bitcoin.it/wiki/Running_Bitcoin).
 
 In case the network is changed (testnet to livenet or vice versa) levelDB database needs to be deleted. This can be performed running:
-```util/sync.js -D``` and waiting for *Reddsight API* to synchronize again.  Once the database is deleted,
+```util/sync.js -D``` and waiting for *PotChain API* to synchronize again.  Once the database is deleted,
 the sync.js process can be safely interrupted (CTRL+C) and continued from the synchronization process embedded in main app.
 
 
 ## Synchronization
 
-The initial synchronization process scans the blockchain from the paired reddcoind server to update addresses and balances.
-*reddsight-api* needs exactly one trusted reddcoind node to run. This node must have finished downloading the blockchain
-before running *reddsight-api*.
+The initial synchronization process scans the blockchain from the paired potcoind server to update addresses and balances.
+*potchain-api* needs exactly one trusted potcoind node to run. This node must have finished downloading the blockchain
+before running *potchain-api*.
 
-While *reddsight-api* is synchronizing the website can be accessed (the sync process is embedded in the webserver),
+While *potchain-api* is synchronizing the website can be accessed (the sync process is embedded in the webserver),
 but there may be missing data or incorrect balances for addresses. The 'sync' status is shown at the `/api/sync` endpoint.
 
-The blockchain can be read from reddcoind's raw `.dat` files or RPC interface. 
+The blockchain can be read from potcoind's raw `.dat` files or RPC interface. 
 Reading the information from the `.dat` files is much faster so it's the
 recommended (and default) alternative. `.dat` files are scanned in the default
-location for each platform (for example, `~/.reddcoin` on Linux). In case a
+location for each platform (for example, `~/.potcoin` on Linux). In case a
 non-standard location is used, it needs to be defined (see the Configuration section).
 
-While synchronizing the blockchain, *reddsight-api* listens for new blocks and
-transactions relayed by the reddcoind node. Those are also stored on *reddsight-api*'s database.
-In case *reddsight-api* is shutdown for a period of time, restarting it will trigger
+While synchronizing the blockchain, *potchain-api* listens for new blocks and
+transactions relayed by the potcoind node. Those are also stored on *potchain-api*'s database.
+In case *potchain-api* is shutdown for a period of time, restarting it will trigger
 a partial (historic) synchronization of the blockchain. Depending on the size of
 that synchronization task, a reverse RPC or forward `.dat` syncing strategy will be used.
 
-If reddcoind is shutdown, *reddsight-api* needs to be stopped and restarted
-once reddcoind is restarted.
+If potcoind is shutdown, *potchain-api* needs to be stopped and restarted
+once potcoind is restarted.
 
 
 ### Syncing old blockchain data manually
@@ -119,23 +119,23 @@ once reddcoind is restarted.
   Check util/sync.js --help for options, particularly -D to erase the current DB.
 
   *NOTE*: there is no need to run this manually since the historic synchronization
-  is built in into the web application. Running *reddsight-api* normally will trigger
+  is built in into the web application. Running *potchain-api* normally will trigger
   the historic sync automatically.
 
 
 ### DB storage requirement
 
-To store the blockchain and address related information, *reddsight-api* uses LevelDB.
+To store the blockchain and address related information, *potchain-api* uses LevelDB.
 Two DBs are created: txs and blocks. By default these are stored on
 
-  ``~/.reddsight/``
+  ``~/.potchain/``
 
 This can be changed at config/config.js.
 
 
 ## Development
 
-To run *reddsight-api* locally for development with grunt:
+To run *potchain-api* locally for development with grunt:
 
 ```$ NODE_ENV=development grunt```
 
@@ -143,8 +143,6 @@ To run the tests
 
 ```$ grunt test```
 
-
-Contributions and suggestions are welcome at [reddsight-api github repository](https://github.com/reddcoin-project/reddsight-api).
 
 ## Caching schema
 
@@ -162,7 +160,7 @@ to ignore the cache in a particular API request.
 
 ## API
 
-By default, *reddsight-api* provides a REST API at `/api`, but this prefix is configurable from the var `apiPrefix` in the `config.js` file.
+By default, *potchain-api* provides a REST API at `/api`, but this prefix is configurable from the var `apiPrefix` in the `config.js` file.
 
 The end-points are:
 
@@ -303,7 +301,7 @@ Where "xxx" can be:
 ## Web Socket API
 The web socket API is served using [socket.io](http://socket.io).
 
-The following are the events published by *Reddsight API*:
+The following are the events published by *PotChain API*:
 
 'tx': new transaction received from network. This event is published in the 'inv' room. Data will be a app/models/Transaction object.
 Sample output:
@@ -326,7 +324,7 @@ Sample output:
 }
 ```
 
-'<reddcoinAddress>': new transaction concerning <reddcoinAddress> received from network. This event is published in the '<reddcoinAddress>' room.
+'<potcoinAddress>': new transaction concerning <potcoinAddress> received from network. This event is published in the '<potcoinAddress>' room.
 
 'status': every 1% increment on the sync task, this event will be triggered. This event is published in the 'sync' room.
 
@@ -346,18 +344,18 @@ Sample output:
 
 ### Example Usage
 
-The following html page connects to the socket.io Reddsight API and listens for new transactions.
+The following html page connects to the socket.io PotChain API and listens for new transactions.
 
 html
 ```
 <html>
 <body>
-  <script src="http://live.reddcoin.com/socket.io/socket.io.js"></script>
+  <script src="http://chain.potwallet.com/socket.io/socket.io.js"></script>
   <script>
     eventToListenTo = 'tx'
     room = 'inv'
 
-    var socket = io("http://live.reddcoin.com/");
+    var socket = io("http://chain.potwallet.com/");
     socket.on('connect', function() {
       // Join the room.
       socket.emit('subscribe', room);
